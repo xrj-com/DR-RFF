@@ -47,23 +47,6 @@ class RFFTrainer(mt.BaseTrainer):
 
         self.optims['C'] = torch.optim.Adam(
             self.models['C'].parameters(), lr=1e-4, betas=(0.5, 0.99))
-        # self.optims['C'] = torch.optim.Adam(
-        #     self.models['C'].parameters(), lr=1e-3, betas=(0.9, 0.999))
-
-        # self.datasets['train_MP'] = RFdataset_MP(device_ids=range(0,6), test_ids=[0,1,2,3], rand_max_SNR=None)
-        # self.datasets['train'] = RFdataset(device_ids=range(45), test_ids=[5], rand_max_SNR=None)
-        # self.datasets['open'] = RFdataset_MP(device_ids=range(7, 12), test_ids=[0,1,2,3], rand_max_SNR=None)
-
-        self.eval_sets['MP0'] = RFdataset_MP(device_ids=range(6), test_ids=[0,1,2,3], rand_max_SNR=None)
-        self.eval_sets['MP1'] = RFdataset_MP(device_ids=range(7,12), test_ids=[0,1,2,3], rand_max_SNR=None)
-        self.eval_sets['MP-all'] = RFdataset_MP(device_ids=range(12), test_ids=[0,1,2,3], rand_max_SNR=None)
-        self.train_sets['train'] = RFdataset(device_ids=range(45), test_ids=[1,2,3,4], rand_max_SNR=self.train_snr)
-        self.eval_sets['val'] = RFdataset(device_ids=range(45), test_ids=[5], rand_max_SNR=None)
-        self.eval_sets['open'] = RFdataset(device_ids=range(6), test_ids=[1,2,3,4,5], rand_max_SNR=None)
-
-        # self.datasets['train'] = RFdataset(device_ids=self.train_devices, test_ids=self.train_ids, rand_max_SNR=self.train_snr)
-        # self.datasets['close'] = RFdataset_MP(device_ids=range(0,12), test_ids=[0,1,2,3], rand_max_SNR=None)
-        # self.datasets['close'] = RFdataset(device_ids=range(45), test_ids=[5], rand_max_SNR=None)
 
         self.preprocessing()
 
@@ -74,19 +57,13 @@ class RFFTrainer(mt.BaseTrainer):
         self.logs = {}
         self.models['C'].train()
         for i, data in enumerate(self.dataloaders['train']):
-            # data_mp = next(iter(self.dataloaders['train']))
 
             x, y = data[self.data_idx], data[1]
             x, y = x.to(self.device), y.to(self.device)
 
-            # x_nmp, y_nmp = data[self.data_idx], data[1]
-            # x_nmp, y_nmp = x.to(self.device), y.to(self.device)
             scores = self.models['C'](x, y)
-            loss_mp = F.cross_entropy(scores, y)
+            loss = F.cross_entropy(scores, y)
 
-            # scores_nmp = self.models['C'](x_nmp, y_nmp)
-            # loss_nmp = F.cross_entropy(scores_nmp, y_nmp)
-            loss = loss_mp # + loss_nmp
             self.optims['C'].zero_grad()
             loss.backward()
             self.optims['C'].step()
