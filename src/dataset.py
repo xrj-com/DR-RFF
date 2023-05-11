@@ -38,6 +38,7 @@ class RFdataset(torch.utils.data.Dataset):
             main_NMP(device_ids, test_ids, flag=flag)
      
         self.data = torch.load(file_name)
+
         self.snr = SNR
         self.max_snr = rand_max_SNR
         self.is_FIR = is_FIR
@@ -80,6 +81,7 @@ class RFdataset_MP(torch.utils.data.Dataset):
         if not os.path.isfile(file_name):
             main_MP(device_ids, test_ids, flag=flag)
         self.data = torch.load(file_name)
+
         self.snr = SNR
         self.max_snr = rand_max_SNR
 
@@ -107,7 +109,7 @@ class RFdataset_MP(torch.utils.data.Dataset):
 
 
 if __name__ == "__main__":
-    test = RFdataset(device_ids=range(45), test_ids=[1,2,3,4], flag='data_new')
+    test = RFdataset_MP(device_ids=range(5), test_ids=[1,2,3], rand_max_SNR=None)
     print(len(test))
     print(test[0][0].shape)
     # min_freq = 1000000

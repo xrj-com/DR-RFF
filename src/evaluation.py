@@ -3,7 +3,6 @@ import torch.nn.functional as F
 import numpy as np
 from sklearn.metrics.pairwise import pairwise_distances
 from sklearn.metrics import roc_curve, auc
-from sklearn.metrics import precision_recall_curve
 from scipy.optimize import brentq
 from scipy.interpolate import interp1d
 import matplotlib.pyplot as plt
@@ -62,37 +61,11 @@ def inter_intra_dist(features, labels, metric='cosine', other_features=None):
     else:
         distance = pairwise_distances(features, other_features, metric=metric)
         pair_dist = np.diag(distance)
-        # print(features.shape)
-        # print(other_features.shape)
-        # print(pair_dist.shape)
         inter_dist = pair_dist[labels == 0]
         intra_dist = pair_dist[labels != 0]
 
     return intra_dist, inter_dist
 
-# def inter_intra_dist(features, labels, metric='cosine', other_features=None):
-#     if not other_features:
-#         label_repeat = np.tile(labels, (len(labels), 1))
-#         itself_dist = np.eye(len(labels))
-#         intra_dist_mask = ((label_repeat == label_repeat.T) -
-#                            itself_dist).astype(np.bool)
-#         inter_dist_mask = label_repeat != label_repeat.T
-
-#         distance = pairwise_distances(features, metric=metric)
-
-#         intra_dist = distance[intra_dist_mask]
-#         inter_dist = distance[inter_dist_mask]
-
-#     else:
-#         distance = pairwise_distances(features, other_features, metric=metric)
-#         pair_dist = np.diag(distance)
-#         # print(features.shape)
-#         # print(other_features.shape)
-#         # print(pair_dist.shape)
-#         inter_dist = pair_dist[labels == 0]
-#         intra_dist = pair_dist[labels != 0]
-
-#     return intra_dist, inter_dist
 
 def pair_dist(features1, features2, metric='cosine'):
     distance = pairwise_distances(features1, features2, metric=metric)
@@ -137,8 +110,6 @@ def distance_hist_plot(intra_dist, inter_dist, filename=None):
         plt.close()
 
     
-
-
 def get_auc_eer(intra_dist, inter_dist, plot_roc=False, filename=None):
     inter_label = np.ones_like(inter_dist)
     intra_label = np.zeros_like(intra_dist)
@@ -225,6 +196,3 @@ def l2_norm(input):
     _output = torch.div(input, norm.view(-1, 1).expand_as(input))
     output = _output.view(input_size)
     return output, norm
-
-def BO_balance_score(RB, auc, lamda=20000):
-    return RB - (1-auc)* lamda
